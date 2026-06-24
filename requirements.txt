@@ -1,0 +1,2 @@
+# only dependency: the live dashboard
+rich>=13.0
