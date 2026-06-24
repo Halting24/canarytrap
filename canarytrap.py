@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-canarytrap — deception engineering in a single file.
+canarytrap - deception engineering in a single file.
 
 Mint believable *honeytokens* (decoy AWS keys, a fake .env, tripwire URLs, a
 booby-trapped document with a tracking pixel), drop them where an intruder will
 find them, then run the listener. The moment a token is touched you get an
-instant alert with the attacker's IP, user-agent and timestamp — early-warning
+instant alert with the attacker's IP, user-agent and timestamp - early-warning
 that someone is already inside, with near-zero false positives.
 
     canarytrap mint url   --name "prod-backup-link"
@@ -76,7 +76,7 @@ def mint(kind: str, name: str, base_url: str) -> dict:
         path.write_text(
             "<!doctype html><html><head><title>CONFIDENTIAL</title></head>"
             "<body style='font-family:sans-serif'>"
-            "<h2>Internal — Do Not Distribute</h2>"
+            "<h2>Internal - Do Not Distribute</h2>"
             "<p>Credential rotation schedule &amp; recovery codes attached.</p>"
             f"<img src='{url}' width='1' height='1' alt=''></body></html>")
         print(f"Booby-trapped document written -> {path}")
@@ -84,7 +84,7 @@ def mint(kind: str, name: str, base_url: str) -> dict:
     elif kind == "env":
         path = DATA / f"{_safe(name)}.env"
         path.write_text(
-            "# staging environment — KEEP SECRET\n"
+            "# staging environment - KEEP SECRET\n"
             f"API_BASE_URL={base_url.rstrip('/')}\n"
             f"API_KEY=ct_{secrets.token_urlsafe(24)}\n"
             f"WEBHOOK_URL={url}\n"
@@ -141,7 +141,8 @@ def make_handler(webhook: str | None):
             evt = {"ts": _now(), "id": tid, "name": name, "kind": kind,
                    "ip": ip, "ua": ua}
             trg = _load(TRIGGERS); trg.append(evt); _save(TRIGGERS, trg)
-            print(f"\a🚨 TRIPPED  '{name}' [{kind}]  from {ip}  {ua[:50]}  @ {evt['ts']}")
+            print(f"\a🚨 \033[1;91mTRIPPED\033[0m  '{name}' [{kind}]  from "
+                  f"\033[1;93m{ip}\033[0m  {ua[:50]}  @ {evt['ts']}")
             if webhook:
                 _post(webhook, f"🚨 canarytrap: '{name}' ({kind}) tripped from {ip}")
     return Handler
@@ -162,7 +163,7 @@ def listen(host: str, port: int, webhook: str | None):
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer((host, port), make_handler(webhook)) as srv:
         print(f"👂 canarytrap listening on http://{host}:{port}  "
-              f"({len(_load(TOKENS))} tokens armed)  — Ctrl-C to stop")
+              f"({len(_load(TOKENS))} tokens armed)  (Ctrl-C to stop)")
         try:
             srv.serve_forever()
         except KeyboardInterrupt:
@@ -208,14 +209,14 @@ def watch():
 
     def render():
         trg = _load(TRIGGERS)[-20:]
-        t = Table(title=f"🪤 canarytrap — {len(_load(TRIGGERS))} triggers "
+        t = Table(title=f"🪤 canarytrap - {len(_load(TRIGGERS))} triggers "
                         f"· {len(_load(TOKENS))} tokens armed", header_style="bold red")
         for c in ("time", "token", "kind", "source IP", "user-agent"):
             t.add_column(c)
         for e in reversed(trg):
             t.add_row(e["ts"], e["name"], e["kind"], e["ip"], e["ua"][:40])
         if not trg:
-            t.add_row("—", "waiting for a bite…", "", "", "")
+            t.add_row(" - ", "waiting for a bite…", "", "", "")
         return t
 
     with Live(render(), refresh_per_second=2, console=con) as live:

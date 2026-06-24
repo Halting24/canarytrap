@@ -37,7 +37,7 @@ $ canarytrap listen --port 8000 &
 
 ```text
 $ canarytrap watch
-🪤 canarytrap — 1 triggers · 3 tokens armed
+🪤 canarytrap - 1 triggers · 3 tokens armed
  time                  token              kind   source IP     user-agent
  2026-06-24T13:35:53   prod-backup-link   url    203.0.113.7   EvilScanner/1.0 (pwned)
 ```
@@ -62,7 +62,7 @@ canarytrap watch                                  # live dashboard
 - Every token gets a unique id and a `…/t/<id>` tripwire URL.
 - The `doc`/`env`/`aws` artifacts **embed that URL** (pixel, webhook field, callback comment), so touching the artifact pings the listener.
 - The listener records `{time, token, kind, source IP, user-agent}`, prints a 🔔 alert, optionally fires a Slack/Discord webhook, and returns a transparent pixel so the attacker sees nothing.
-- State is plain JSON (`canarytrap_data/`) — easy to inspect or ship to a SIEM.
+- State is plain JSON (`canarytrap_data/`) - easy to inspect or ship to a SIEM.
 
 ## Why it stands out
 
